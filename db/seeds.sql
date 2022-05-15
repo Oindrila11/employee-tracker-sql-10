@@ -2,16 +2,18 @@ USE employeedb;
 
 INSERT INTO department(name)
 VALUES
-('Oindrila'),
-('Reem'),
-('Trina');
+('Quality Control'),
+('Service'),
+('Sales');
 
 INSERT INTO role(title, salary, department_id)
 VALUES
 ('Manager', 120000, 1),
-('Advisor', 10000, 2);
+('Advisor', 10000, 2),
+('Sales lead', 10000, 3);
 
 INSERT INTO employee(first_name, last_name, role_id, manager_id)
 VALUES 
-('Oindrila' ,'Talukder', 1, 1),
-('Reem', 'Vian', 2, 2);
+('Oindrila' ,'Talukder', 1, NULL),
+('Reem', 'Vian', 2, NULL),
+('Trina', 'Joseph', 3, NULL);
