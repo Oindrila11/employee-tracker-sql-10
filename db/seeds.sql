@@ -14,6 +14,6 @@ VALUES
 
 INSERT INTO employee(first_name, last_name, role_id, manager_id)
 VALUES 
-('Oindrila' ,'Talukder', 1, NULL),
-('Reem', 'Vian', 2, NULL),
-('Trina', 'Joseph', 3, NULL);
+('Oindrila' ,'Talukder', 1, 1),
+('Reem', 'Vian', 2, 2),
+('Trina', 'Joseph', 3, 3);

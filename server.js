@@ -17,10 +17,7 @@ const db = mysql.createConnection(
         Ques();
     });
 
-    const exitQues = () =>{
-        db.end();
-        process.exit(0)
-    }
+   
 
     const Ques = ()=>{
 
@@ -59,7 +56,11 @@ const db = mysql.createConnection(
       });
     }
     function viewAllRoles() {
-        db.query(`SELECT role.*, department.name AS Department_name FROM role LEFT JOIN department ON role.department_id = department.id`, 
+        db.query(`SELECT role.*, department.name 
+        AS Department_name 
+        FROM role
+        LEFT JOIN department
+        ON role.department_id = department.id`, 
         function(err,results){
             if(err) throw err;
             console.table(results);
@@ -67,9 +68,9 @@ const db = mysql.createConnection(
         });
     }
     function viewAllEmployees() {
-        db.query(`select employee.*, role.title, role.salary, role.department_id AS Department, employee.manager_id AS Manager from employee LEFT JOIN role ON employee.role_id = role.id`,
-        function(err,results){
-            if(err) throw err;
+        db.query(`select employee.*, role.title, role.salary, role.department_id AS Department, employee.manager_id AS Manager from employee LEFT JOIN role ON employee.role_id = role.id`, 
+            function(err,results){
+                if(err) throw err;
             console.table(results);
             Ques();
         });
@@ -122,65 +123,72 @@ function addRole() {
     })
    })
 };
-
 function addEmployee() {
-   db.query("SELECT * FROM role", function(err, results){
-       if(err) throw error;
-    
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'firstName',
-            message: 'Enter the first name of the employee'
-        },
-        {
-            type: 'input',
-            name: 'lastName',
-            message: 'Enter the last name of the employee'
-        },
-        {
-
-            type: 'rawlist',
-            name: 'role',
-            choices: function(){
-                var choiceArr = [];
-                for(i=0; i< results.length; i++){
-                    choiceArr.push(results[i].title)
-                }
-                return choiceArr;
+    const sql1 = `SELECT role.id, role.title AS "Position" FROM role JOIN employee ON role.id = employee.role_id`;
+    const sql2 = `SELECT employee.id, CONCAT(employee.first_name, ' ' ,employee.last_name) AS "Employee", CONCAT(e.first_name, ' ' ,e.last_name) AS "Manager" FROM employee LEFT JOIN employee e on employee.manager_id = e.id WHERE employee.manager_id <> "null"`;
+    db.query(sql1, function (err, res1) {
+      if (err) throw err;
+      db.query(sql2, function (err, res2) {
+        if (err) throw err;
+  
+       inquirer.prompt([
+          {
+            type: "input",
+            name: "first_name",
+            message: "What is the employee's first name?",
+          },
+          {
+            type: "input",
+            name: "last_name",
+            message: "What is the employee's last name?",
+          },
+          {
+            type: "rawlist",
+            name: "role_id",
+            message: "What is the employee's position?",
+            choices: function () {
+              let roleArr = [];
+              for (let i = 0; i < res1.length; i++) {
+                roleArr.push({ name: res1[i].Position, value: res1[i].id });
+              }
+              return roleArr;
             },
-            message: 'Select title'
-        },
-        {
-            name: 'manager',
-            type: 'number',
-            validate: function(value) {
-                if(isNaN(value) === false){
-                    return true;
-                }
-                return false;
+          },
+          {
+            type: "rawlist",
+            name: "manager_id",
+            message: "Who is this employee's manager?",
+            choices: function () {
+              let managerArr = [];
+              for (let i = 0; i < res2.length; i++) {
+                managerArr.push({ name: res2[i].Manager, value: res2[i].id });
+              }
+              return managerArr;
             },
-            message: 'Select manager ID '
-            
-        }
-      
-    ])
-        .then(function(answer) {
-            //let managerId = newManager.indexOf(results.managerid)
-          db.query("INSERT INTO employee SET ?", 
-          {first_name: answer.firstName,
-            last_name: answer.lastName, 
-            role_id: answer.role, 
-            manager_id: answer.manager
-          }
-          )
-              console.log("Employee has been added");
+          },
+        ]).then((answer) => {
+          db.query(
+            `INSERT INTO employee (first_name, last_name, role_id , manager_id) VALUES (?,?,?,?)`,
+            [
+              answer.first_name,
+              answer.last_name,
+              answer.role_id,
+              answer.manager_id,
+            ],
+            (err, res) => {
+              console.table(res, answer);
               Ques();
-              
-          });
+            }
+          );
         });
-    }
+      });
+    });
+  }
     
+    const exitQues = () =>{
+        db.end();
+        process.exit(0)
+    }
         
         
 
