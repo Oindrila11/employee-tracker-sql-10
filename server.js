@@ -147,11 +147,11 @@ function addEmployee() {
             name: "role_id",
             message: "What is the employee's position?",
             choices: function () {
-              let roleArr = [];
-              for (let i = 0; i < res1.length; i++) {
-                roleArr.push({ name: res1[i].Position, value: res1[i].id });
+              var choiceArr = [];
+              for ( i = 0; i < res1.length; i++) {
+                choiceArr.push({ name: res1[i].Position, value: res1[i].id });
               }
-              return roleArr;
+              return choiceArr;
             },
           },
           {
@@ -159,11 +159,11 @@ function addEmployee() {
             name: "manager_id",
             message: "Who is this employee's manager?",
             choices: function () {
-              let managerArr = [];
-              for (let i = 0; i < res2.length; i++) {
-                managerArr.push({ name: res2[i].Manager, value: res2[i].id });
+              var choiceArr = [];
+              for (i = 0; i < res2.length; i++) {
+                choiceArr.push({ name: res2[i].Manager, value: res2[i].id });
               }
-              return managerArr;
+              return choiceArr;
             },
           },
         ]).then((answer) => {
