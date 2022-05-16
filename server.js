@@ -73,6 +73,159 @@ const db = mysql.createConnection(
         });
     }
 
+    function addDepartment() {
+        inquirer.prompt([
+            {
+                type: 'input',
+                name: 'addDepartment',
+                message: 'What department would you like to add?'
+            }
+        ]).then((answer) => {
+        db.query('INSERT INTO department(name) VALUES(?)', [answer.addDepartment], function (err) {
+            if(err) throw err;
+            console.log("Department added");
+            Ques();
+        })
+    })
+    };
+
+function addRole() {
+   inquirer.prompt([
+       {
+           type: 'input',
+           name: 'addTitle',
+           message: 'Enter title for the role'
+       },
+       {
+        type: 'number',
+        name: 'addSalary',
+        message: 'Enter salary for the role'  
+       },
+       {
+           type: 'number',
+           name: 'department_id',
+           message: 'choose department_id for the role'
+       }
+   ]).then((answer) => {
+     db.query("INSERT INTO role(title, salary, department_id) VALUES(?,?,?)", [answer.addTitle, answer.addSalary, answer.department_id],
+     function(err){
+     if(err) throw err
+    console.log('Role has been added')
+     Ques();
+    })
+   })
+};
+
+function addEmployee() {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'addFirstName',
+            message: 'Enter the first name of the employee'
+        },
+        {
+            type: 'input',
+            name: 'addLastName',
+            message: 'Enter the last name of the employee'
+        },
+        {
+            type: 'input',
+            name: 'addRoleId',
+            message: 'Enter role id'
+        },
+        {
+            type: 'input',
+            name: 'addManagerId',
+            message: 'Enter employees manager id',
+        }
+    ]).then((answer)=> {
+        db.query('INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)', 
+        [answer.addFirstName, answer.addLastName, answer.addRoleId, answer.addManagerId], 
+        function(err){
+            if(err) throw err
+            console.log('Employee has been added')
+            Ques();
+        })
+       
+    })
+};
+function addDepartment() {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'addDepartment',
+            message: 'What department would you like to add?'
+        }
+    ]).then((answer) => {
+    db.query('INSERT INTO department(name) VALUES(?)', [answer.addDepartment], function (err) {
+        if(err) throw err;
+        console.log("Department added");
+        Ques();
+    })
+})
+};
+
+function addRole() {
+inquirer.prompt([
+   {
+       type: 'input',
+       name: 'addTitle',
+       message: 'Enter title for the role'
+   },
+   {
+    type: 'number',
+    name: 'addSalary',
+    message: 'Enter salary for the role'  
+   },
+   {
+       type: 'number',
+       name: 'department_id',
+       message: 'choose department_id for the role'
+   }
+]).then((answer) => {
+ db.query("INSERT INTO role(title, salary, department_id) VALUES(?,?,?)", [answer.addTitle, answer.addSalary, answer.department_id],
+ function(err){
+ if(err) throw err
+console.log('Role has been added')
+ Ques();
+})
+})
+};
+
+function addEmployee() {
+inquirer.prompt([
+    {
+        type: 'input',
+        name: 'addFirstName',
+        message: 'Enter the first name of the employee'
+    },
+    {
+        type: 'input',
+        name: 'addLastName',
+        message: 'Enter the last name of the employee'
+    },
+    {
+        type: 'input',
+        name: 'addRoleId',
+        message: 'Enter role id'
+    },
+    {
+        type: 'input',
+        name: 'addManagerId',
+        message: 'Enter employees manager id',
+    }
+]).then((answer)=> {
+    db.query('INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)', 
+    [answer.addFirstName, answer.addLastName, answer.addRoleId, answer.addManagerId], 
+    function(err){
+        if(err) throw err
+        console.log('Employee has been added')
+        Ques();
+    })
+   
+})
+};
+
 
 
 
