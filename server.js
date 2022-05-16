@@ -19,10 +19,12 @@ const db = mysql.createConnection(
 
     const exitQues = () =>{
         db.end();
-        process.exit(1)
+        process.exit(0)
     }
 
     const Ques = ()=>{
+
+    
      inquirer.prompt ([
          {
              type: 'list',
@@ -50,25 +52,25 @@ const db = mysql.createConnection(
     });
 }
     function viewAllDepartments(){
-      db.query("SELECT * FROM department", function(err,data){
+      db.query(`SELECT * FROM department`, function(err,results){
           if(err) throw error;
-          console.table(data);
+          console.table(results);
           Ques();
       });
     }
     function viewAllRoles() {
-        db.query("SELECT role.*, department.name AS Department_name FROM role LEFT JOIN department ON role.department_id = department.id", 
-        function(err,data){
+        db.query(`SELECT role.*, department.name AS Department_name FROM role LEFT JOIN department ON role.department_id = department.id`, 
+        function(err,results){
             if(err) throw err;
-            console.table(data);
+            console.table(results);
             Ques();  
         });
     }
     function viewAllEmployees() {
-        db.query("select employee.*, role.title, role.salary, role.department_id AS Department, employee.manager_id AS Manager from employee LEFT JOIN role ON employee.role_id = role.id",
-        function(err,data){
+        db.query(`select employee.*, role.title, role.salary, role.department_id AS Department, employee.manager_id AS Manager from employee LEFT JOIN role ON employee.role_id = role.id`,
+        function(err,results){
             if(err) throw err;
-            console.table(data);
+            console.table(results);
             Ques();
         });
     }
@@ -81,7 +83,7 @@ const db = mysql.createConnection(
                 message: 'What department would you like to add?'
             }
         ]).then((answer) => {
-        db.query('INSERT INTO department(name) VALUES(?)', [answer.addDepartment], function (err) {
+        db.query(`INSERT INTO department(name) VALUES(?)`, [answer.addDepartment], function (err) {
             if(err) throw err;
             console.log("Department added");
             Ques();
@@ -93,21 +95,26 @@ function addRole() {
    inquirer.prompt([
        {
            type: 'input',
-           name: 'addTitle',
+           name: 'role',
            message: 'Enter title for the role'
        },
        {
         type: 'number',
-        name: 'addSalary',
+        name: 'salary',
         message: 'Enter salary for the role'  
        },
        {
            type: 'number',
            name: 'department_id',
-           message: 'choose department_id for the role'
+           message: 'choose department id for the role'
        }
    ]).then((answer) => {
-     db.query("INSERT INTO role(title, salary, department_id) VALUES(?,?,?)", [answer.addTitle, answer.addSalary, answer.department_id],
+     db.query("INSERT INTO role SET?",
+     {
+         title: answer.role,
+         salary: answer.salary,
+         department_id: answer.department_id
+     },
      function(err){
      if(err) throw err
     console.log('Role has been added')
@@ -117,114 +124,71 @@ function addRole() {
 };
 
 function addEmployee() {
+   db.query("SELECT * FROM role", function(err, results){
+       if(err) throw error;
+    
     inquirer.prompt([
         {
             type: 'input',
-            name: 'addFirstName',
+            name: 'firstName',
             message: 'Enter the first name of the employee'
         },
         {
             type: 'input',
-            name: 'addLastName',
+            name: 'lastName',
             message: 'Enter the last name of the employee'
         },
         {
-            type: 'input',
-            name: 'addRoleId',
-            message: 'Enter role id'
+
+            type: 'rawlist',
+            name: 'role',
+            choices: function(){
+                var choiceArr = [];
+                for(i=0; i< results.length; i++){
+                    choiceArr.push(results[i].title)
+                }
+                return choiceArr;
+            },
+            message: 'Select title'
         },
         {
-            type: 'input',
-            name: 'addManagerId',
-            message: 'Enter employees manager id',
+            name: 'manager',
+            type: 'number',
+            validate: function(value) {
+                if(isNaN(value) === false){
+                    return true;
+                }
+                return false;
+            },
+            message: 'Select manager ID '
+            
         }
-    ]).then((answer)=> {
-        db.query('INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)', 
-        [answer.addFirstName, answer.addLastName, answer.addRoleId, answer.addManagerId], 
-        function(err){
-            if(err) throw err
-            console.log('Employee has been added')
-            Ques();
-        })
-       
-    })
-};
-function addDepartment() {
-    inquirer.prompt([
-        {
-            type: 'input',
-            name: 'addDepartment',
-            message: 'What department would you like to add?'
-        }
-    ]).then((answer) => {
-    db.query('INSERT INTO department(name) VALUES(?)', [answer.addDepartment], function (err) {
-        if(err) throw err;
-        console.log("Department added");
-        Ques();
-    })
-})
-};
-
-function addRole() {
-inquirer.prompt([
-   {
-       type: 'input',
-       name: 'addTitle',
-       message: 'Enter title for the role'
-   },
-   {
-    type: 'number',
-    name: 'addSalary',
-    message: 'Enter salary for the role'  
-   },
-   {
-       type: 'number',
-       name: 'department_id',
-       message: 'choose department_id for the role'
-   }
-]).then((answer) => {
- db.query("INSERT INTO role(title, salary, department_id) VALUES(?,?,?)", [answer.addTitle, answer.addSalary, answer.department_id],
- function(err){
- if(err) throw err
-console.log('Role has been added')
- Ques();
-})
-})
-};
-
-function addEmployee() {
-inquirer.prompt([
-    {
-        type: 'input',
-        name: 'addFirstName',
-        message: 'Enter the first name of the employee'
-    },
-    {
-        type: 'input',
-        name: 'addLastName',
-        message: 'Enter the last name of the employee'
-    },
-    {
-        type: 'input',
-        name: 'addRoleId',
-        message: 'Enter role id'
-    },
-    {
-        type: 'input',
-        name: 'addManagerId',
-        message: 'Enter employees manager id',
+      
+    ])
+        .then(function(answer) {
+            //let managerId = newManager.indexOf(results.managerid)
+          db.query("INSERT INTO employee SET ?", 
+          {first_name: answer.firstName,
+            last_name: answer.lastName, 
+            role_id: answer.role, 
+            manager_id: answer.manager
+          }
+          )
+              console.log("Employee has been added");
+              Ques();
+              
+          });
+        });
     }
-]).then((answer)=> {
-    db.query('INSERT INTO employee(first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)', 
-    [answer.addFirstName, answer.addLastName, answer.addRoleId, answer.addManagerId], 
-    function(err){
-        if(err) throw err
-        console.log('Employee has been added')
-        Ques();
-    })
-   
-})
-};
+    
+        
+        
+
+       
+
+
+
+
 
 
 
